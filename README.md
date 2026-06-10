@@ -1,113 +1,96 @@
-ECG Signal Filtering & Analysis
+# ECG Signal Filtering & Analysis
 
 A Digital Signal Processing (DSP) project that applies FIR and IIR digital filters to real ECG signals from the MIT-BIH Arrhythmia Database, with automated heart rate and HRV analysis.
 
-──────────────────────────────────────────────
+---
 
-Technologies Used
+## Technologies Used
+- Python 3
+- NumPy
+- SciPy
+- Matplotlib
+- WFDB (PhysioNet data reader)
 
-• Python 3
-• NumPy
-• SciPy
-• Matplotlib
-• WFDB (PhysioNet Data Reader)
+---
 
-──────────────────────────────────────────────
+## What I Built
 
-What I Built
+### 1. Signal Loading
+- Loaded real ECG signal from the **MIT-BIH Arrhythmia Database** (Record 100, sampled at 360 Hz)
+- Signal contains baseline wander (low-frequency noise) and EMG muscle artifacts (high-frequency noise)
 
-1. Signal Loading
+### 2. FFT Analysis
+- Applied Fast Fourier Transform to analyze frequency content of the raw noisy signal
+- Identified noise frequency bands to guide filter design
 
-• Loaded real ECG signals from the MIT-BIH Arrhythmia Database (Record 100, sampled at 360 Hz).
-• The signal contains baseline wander (low-frequency noise) and EMG muscle artifacts (high-frequency noise).
+### 3. Filter Design (Cascaded Bandpass: 0.5 – 40 Hz)
+| Filter | Type | Order | Method |
+|--------|------|-------|--------|
+| FIR | Bandpass | 101 | Hamming window |
+| IIR | Bandpass | 4 | Butterworth |
 
-2. FFT Analysis
+- Both filters implemented using **zero-phase filtering** (`filtfilt` / `sosfiltfilt`) to eliminate phase distortion
+- Zero-phase filtering ensures accurate R-peak detection and preserves ECG waveform morphology
 
-• Applied Fast Fourier Transform (FFT) to analyze the frequency content of the raw ECG signal.
-• Identified noise frequency bands to guide filter design.
+### 4. Filter Analysis
+- Magnitude and phase response comparison (FIR vs IIR)
+- Group delay analysis: FIR → constant delay, IIR → variable delay
 
-3. Filter Design (Cascaded Bandpass: 0.5–40 Hz)
+### 5. ECG Signal Analysis After Filtering
+- **R-peak detection** using `scipy.signal.find_peaks`
+- **Heart Rate (HR)** calculation from RR intervals
+- **HRV metrics**: SDNN and RMSSD
+- **Arrhythmia detection**: beats with RR interval deviating >25% from mean flagged as abnormal
 
-FIR Filter
-• Type: Bandpass
-• Order: 101
-• Design Method: Hamming Window
+---
 
-IIR Filter
-• Type: Bandpass
-• Order: 4
-• Design Method: Butterworth
+## Results
 
-• Both filters were implemented using zero-phase filtering (filtfilt / sosfiltfilt) to eliminate phase distortion.
-• Zero-phase filtering preserves ECG waveform morphology and ensures accurate R-peak detection.
+| Metric | FIR Filter | IIR Filter |
+|--------|-----------|-----------|
+| SNR | **11.89 dB** | 1.03 dB |
+| Average Heart Rate | 74.02 BPM | 74.02 BPM |
+| Abnormal Beats | 0 (0.00%) | 0 (0.00%) |
+| Phase Response | Linear ✅ | Non-linear ⚠️ |
 
-4. Filter Analysis
+- FIR filter achieved significantly higher SNR and linear phase response — ideal for clinical ECG analysis
+- IIR filter is computationally efficient (order 4 vs 101) and suitable for rhythm-only analysis
+- Zero-phase filtering corrected IIR phase distortion, resulting in identical clinical timing accuracy for both filters
 
-• Compared magnitude and phase responses of FIR and IIR filters.
-• Performed group delay analysis:
-  - FIR → Constant delay
-  - IIR → Variable delay
+---
 
-5. ECG Signal Analysis After Filtering
+## How to Run
 
-• Detected R-peaks using scipy.signal.find_peaks().
-• Calculated Heart Rate (HR) from RR intervals.
-• Computed HRV metrics:
-  - SDNN
-  - RMSSD
-• Implemented simple arrhythmia detection:
-  - Beats with RR intervals deviating by more than 25% from the mean RR interval were flagged as abnormal.
-
-──────────────────────────────────────────────
-
-Results
-
-Metric                          FIR Filter      IIR Filter
-----------------------------------------------------------
-SNR                             11.89 dB        1.03 dB
-Average Heart Rate              74.02 BPM       74.02 BPM
-Abnormal Beats                  0 (0.00%)       0 (0.00%)
-Phase Response                  Linear ✓        Non-linear ⚠
-
-Key Findings
-
-• The FIR filter achieved significantly higher SNR and maintained a linear phase response, making it ideal for clinical ECG analysis.
-• The IIR filter is computationally efficient (Order 4 vs. Order 101) and suitable for rhythm-monitoring applications.
-• Zero-phase filtering corrected IIR phase distortion, resulting in identical clinical timing accuracy for both filters.
-
-──────────────────────────────────────────────
-
-How to Run
-
-Install Dependencies
-
+### Install dependencies
+```bash
 pip install numpy scipy matplotlib wfdb
+```
 
-Run the Script
-
+### Run the script
+```bash
 python ecg_filtering.py
+```
 
-The script automatically downloads MIT-BIH Record 100 from PhysioNet using the WFDB library.
+> The script automatically downloads MIT-BIH Record 100 from PhysioNet via the `wfdb` library.
 
-──────────────────────────────────────────────
+---
 
-Project Structure
-
+## Project Structure
+```
 ecg-signal-filtering/
 │
-├── ecg_filtering.py      # Main Script
+├── ecg_filtering.py       # Main script
 ├── README.md
-└── outputs/              # Generated Plots
+└── outputs/               # Generated plots (auto-created)
+```
 
-──────────────────────────────────────────────
+---
 
-References
+## References
+- MIT-BIH Arrhythmia Database — PhysioNet
+- Oppenheim & Schafer, *Digital Signal Processing*
+- Proakis, *Digital Signal Processing*
 
-• MIT-BIH Arrhythmia Database (PhysioNet)
-• Oppenheim & Schafer – Digital Signal Processing
-• Proakis – Digital Signal Processing
+---
 
-──────────────────────────────────────────────
-
-DSP Project
-Faculty of Engineering, Suez Canal University | Supervised by Dr. Doaa Gamal
+*DSP Project — Faculty of Engineering, Suez Canal University | Supervised by Dr. Doaa Gamal*
